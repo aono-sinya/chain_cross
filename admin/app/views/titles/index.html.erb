@@ -1,0 +1,16 @@
+<div class="card">
+  <h2>Titles</h2>
+  <p><%= link_to "+ New", new_title_path, class: "btn" %></p>
+  <table>
+    <tr><th>Code</th><th>Name</th><th>Endpoint</th><th></th></tr>
+    <% @titles.each do |t| %>
+      <tr>
+        <td><code><%= t.code %></code></td>
+        <td><%= t.name %></td>
+        <td><%= t.endpoint %></td>
+        <td><%= button_to "Delete", title_path(t), method: :delete, class: "btn secondary" %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>
+

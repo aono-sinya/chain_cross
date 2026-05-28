@@ -1,0 +1,22 @@
+<div class="card">
+  <h2>Overview</h2>
+  <p>CollabManager: <code><%= @manager_address || "(not deployed yet)" %></code></p>
+  <p>Titles: <%= @titles.size %> / Collabs: <%= @collabs.size %></p>
+</div>
+
+<div class="card">
+  <h3>Active Collabs</h3>
+  <table>
+    <tr><th>Name</th><th>Period</th><th>Deployed</th><th>Swept</th><th></th></tr>
+    <% @collabs.each do |c| %>
+      <tr>
+        <td><%= c.name %></td>
+        <td><%= c[:start_at] %> ~ <%= c[:end_at] %></td>
+        <td><%= c[:deployed] ? "✅" : "—" %></td>
+        <td><%= c[:swept] ? "✅" : "—" %></td>
+        <td><%= link_to "open", collab_path(c) %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>
+

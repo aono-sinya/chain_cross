@@ -1,0 +1,18 @@
+<div class="card">
+  <h2>Collabs</h2>
+  <p><%= link_to "+ New Collab", new_collab_path, class: "btn" %></p>
+  <table>
+    <tr><th>Name</th><th>Symbol</th><th>Period</th><th>Deployed</th><th>Swept</th><th></th></tr>
+    <% @collabs.each do |c| %>
+      <tr>
+        <td><%= c.name %></td>
+        <td><%= c.symbol %></td>
+        <td><%= c[:start_at] %> ~ <%= c[:end_at] %></td>
+        <td><%= c[:deployed] ? "✅" : "—" %></td>
+        <td><%= c[:swept] ? "✅" : "—" %></td>
+        <td><%= link_to "open", collab_path(c) %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>
+

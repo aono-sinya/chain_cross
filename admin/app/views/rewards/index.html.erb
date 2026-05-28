@@ -1,0 +1,8 @@
+<div class="card">
+  <h2>Rewards in <%= @collab.name %></h2>
+  <p><%= link_to "+ New", new_collab_reward_path(@collab), class: "btn" %></p>
+  <ul>
+    <% @rewards.each do |r| %><li><%= r.title_id %> / <%= r.name %> — <%= r.cost %></li><% end %>
+  </ul>
+</div>
+

@@ -1,0 +1,17 @@
+<div class="card">
+  <h2>New Collab</h2>
+  <%= form_with url: collabs_path, method: :post, local: true do |f| %>
+    <label>Name</label>             <%= f.text_field "collab[name]" %>
+    <label>Symbol</label>           <%= f.text_field "collab[symbol]" %>
+    <label>Start (ISO8601)</label>  <%= f.text_field "collab[start_at]", placeholder: "2026-06-01T00:00:00Z" %>
+    <label>End (ISO8601)</label>    <%= f.text_field "collab[end_at]",   placeholder: "2026-06-30T00:00:00Z" %>
+    <label>Participating Titles</label>
+    <% @titles.each do |t| %>
+      <label style="display:inline-block;margin-right:12px;">
+        <%= check_box_tag "collab[title_ids][]", t.code %> <%= t.name %> (<%= t.code %>)
+      </label>
+    <% end %>
+    <p><%= f.submit "Create", class: "btn" %></p>
+  <% end %>
+</div>
+

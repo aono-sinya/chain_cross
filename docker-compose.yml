@@ -1,0 +1,170 @@
+services:
+  # =====================================================
+  # Hyperledger Besu (Dev mode, single node, JSON-RPC)
+  # =====================================================
+  besu:
+    image: hyperledger/besu:26.5.0
+    container_name: chaincross-besu
+    command:
+      - --network=dev
+      - --miner-enabled
+      - --miner-coinbase=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73
+      - --rpc-http-enabled
+      - --rpc-http-host=0.0.0.0
+      - --rpc-http-port=8545
+      - --rpc-http-api=ETH,NET,WEB3,DEBUG,TRACE,TXPOOL
+      - --rpc-http-cors-origins=all
+      - --rpc-ws-enabled
+      - --rpc-ws-host=0.0.0.0
+      - --rpc-ws-port=8546
+      - --host-allowlist=*
+      - --logging=INFO
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+    networks: [chaincross]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- --post-data='{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_blockNumber\",\"params\":[]}' --header='Content-Type: application/json' http://localhost:8545 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # =====================================================
+  # Smart contracts (Foundry) - build + deploy
+  # =====================================================
+  contracts:
+    build: ./contracts
+    container_name: chaincross-contracts
+    env_file: [.env]
+    volumes:
+      - ./contracts:/app
+      - contracts_out:/app/out
+      - contracts_cache:/app/cache
+      - ./shared:/shared
+    working_dir: /app
+    depends_on:
+      besu:
+        condition: service_healthy
+    # 起動後は常駐させて `docker compose exec contracts ./deploy.sh` で再デプロイ可能
+    command:
+      - "bash"
+      - "-lc"
+      - |
+        if [ ! -d lib/forge-std ]; then
+          [ -d .git ] || (git init -q . && git config user.email ci@local && git config user.name ci);
+          forge install foundry-rs/forge-std --no-commit;
+        fi;
+        forge build;
+        tail -f /dev/null
+    networks: [chaincross]
+
+  # =====================================================
+  # Firestore Emulator
+  # =====================================================
+  firestore:
+    image: mtlynch/firestore-emulator:latest
+    container_name: chaincross-firestore
+    environment:
+      FIRESTORE_PROJECT_ID: chaincross-local
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+    networks: [chaincross]
+
+  # =====================================================
+  # BigQuery Emulator (goccy/bigquery-emulator)
+  # =====================================================
+  bigquery:
+    image: ghcr.io/goccy/bigquery-emulator:latest
+    container_name: chaincross-bigquery
+    command:
+      - "--project=chaincross-local"
+      - "--dataset=chaincross"
+      - "--port=9050"
+      - "--grpc-port=9060"
+    ports:
+      - "9050:9050"
+      - "9060:9060"
+    networks: [chaincross]
+
+  # =====================================================
+  # Rails admin panel
+  # =====================================================
+  admin:
+    build: ./admin
+    container_name: chaincross-admin
+    env_file: [.env]
+    environment:
+      ROLE: web
+    volumes:
+      - ./admin:/app
+      - ./shared:/shared
+      - admin_bundle:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      besu:
+        condition: service_healthy
+      firestore: { condition: service_started }
+      bigquery:  { condition: service_started }
+    command: ["bash", "-lc", "bundle check || bundle install && bin/rails server -b 0.0.0.0 -p 3000"]
+    networks: [chaincross]
+
+  # =====================================================
+  # Rails event worker (Besu -> BigQuery)
+  # =====================================================
+  worker:
+    build: ./admin
+    container_name: chaincross-worker
+    env_file: [.env]
+    environment:
+      ROLE: worker
+    volumes:
+      - ./admin:/app
+      - ./shared:/shared
+      - admin_bundle:/usr/local/bundle
+    depends_on:
+      admin: { condition: service_started }
+    command: ["bash", "-lc", "bundle check || bundle install && bin/rails runner lib/event_worker.rb"]
+    networks: [chaincross]
+
+  # =====================================================
+  # Game title mocks
+  # =====================================================
+  game-a:
+    build: ./game-mock
+    container_name: chaincross-game-a
+    environment:
+      TITLE_ID: title-a
+      TITLE_NAME: "Game A"
+      PORT: "4001"
+      ADMIN_API_BASE: http://admin:3000
+    ports:
+      - "4001:4001"
+    depends_on:
+      admin: { condition: service_started }
+    networks: [chaincross]
+
+  game-b:
+    build: ./game-mock
+    container_name: chaincross-game-b
+    environment:
+      TITLE_ID: title-b
+      TITLE_NAME: "Game B"
+      PORT: "4002"
+      ADMIN_API_BASE: http://admin:3000
+    ports:
+      - "4002:4002"
+    depends_on:
+      admin: { condition: service_started }
+    networks: [chaincross]
+
+networks:
+  chaincross:
+    driver: bridge
+
+volumes:
+  contracts_out:
+  contracts_cache:
+  admin_bundle:
+

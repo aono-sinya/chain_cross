@@ -1,0 +1,34 @@
+<div class="card">
+  <h2><%= @collab.name %> <small>(<%= @collab.symbol %>)</small></h2>
+  <p>Period: <%= @collab[:start_at] %> ~ <%= @collab[:end_at] %></p>
+  <p>Titles: <code><%= Array(@collab.title_ids).join(", ") %></code></p>
+  <p>Deployed: <%= @collab[:deployed] ? "✅ #{@collab[:deploy_tx]}" : "—" %></p>
+  <p>Swept: <%= @collab[:swept] ? "✅" : "—" %></p>
+  <% unless @collab[:deployed] %>
+    <%= button_to "Deploy on Besu", deploy_collab_path(@collab), method: :post, class: "btn" %>
+  <% end %>
+  <% if @collab[:deployed] && !@collab[:swept] %>
+    <%= button_to "Sweep (burn remaining currency)", sweep_collab_path(@collab), method: :post, class: "btn secondary", data: { confirm: "Confirm sweep?" } %>
+  <% end %>
+</div>
+
+<div class="card">
+  <h3>Quests</h3>
+  <p><%= link_to "+ New Quest", new_collab_quest_path(@collab), class: "btn" %></p>
+  <ul>
+    <% @collab.quests.each do |q| %>
+      <li><code><%= q.title_id %></code> / <%= q.name %> — <%= q.reward_amount %> pt</li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>Rewards</h3>
+  <p><%= link_to "+ New Reward", new_collab_reward_path(@collab), class: "btn" %></p>
+  <ul>
+    <% @collab.rewards.each do |r| %>
+      <li><code><%= r.title_id %></code> / <%= r.name %> — cost <%= r.cost %></li>
+    <% end %>
+  </ul>
+</div>
+

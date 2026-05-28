@@ -1,0 +1,15 @@
+.env
+shared/deployment.json
+shared/*.abi.json
+shared/.last_processed_block
+admin/log/
+admin/tmp/
+admin/Gemfile.lock
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/lib/
+contracts/.git/
+game-mock/node_modules/
+.idea/
+

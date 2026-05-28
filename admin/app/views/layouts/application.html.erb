@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ChainCross Admin</title>
+  <meta name="csrf-param" content="authenticity_token">
+  <meta name="csrf-token" content="<%= form_authenticity_token rescue '' %>">
+  <style>
+    body { font-family: -apple-system, sans-serif; margin: 0; background:#f6f7f9; color:#222; }
+    header { background:#1b2a4e; color:white; padding:12px 24px; }
+    header a { color:#9fb4ff; margin-right:16px; text-decoration:none; }
+    main { padding:24px; max-width: 1100px; margin:auto; }
+    .card { background:white; padding:20px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:20px; }
+    table { width:100%; border-collapse: collapse; }
+    th,td { padding:8px 10px; text-align:left; border-bottom:1px solid #eee; font-size:14px; }
+    .flash { padding:10px 14px; border-radius:6px; margin-bottom:12px; }
+    .flash.notice { background:#e7f5ec; color:#0b6b30; }
+    .flash.alert  { background:#fde8e8; color:#8a1f1f; }
+    button, .btn { background:#3554d1; color:white; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; text-decoration:none; font-size:14px; }
+    .btn.secondary { background:#777; }
+    input, select { padding:6px 8px; border:1px solid #ccc; border-radius:4px; font-size:14px; }
+    label { display:block; margin:8px 0 4px; font-size:13px; color:#555; }
+    code { background:#eef; padding:1px 4px; border-radius:3px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>ChainCross</strong>
+    <%= link_to "Dashboard", root_path %>
+    <%= link_to "Titles",   titles_path %>
+    <%= link_to "Collabs",  collabs_path %>
+  </header>
+  <main>
+    <% flash.each do |k, v| %><div class="flash <%= k %>"><%= v %></div><% end %>
+    <%= yield %>
+  </main>
+</body>
+</html>
+

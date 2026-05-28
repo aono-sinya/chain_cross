@@ -7,7 +7,8 @@ else
   require "google/cloud/firestore"
   ENV["FIRESTORE_EMULATOR_HOST"] ||= "firestore:8080"
   FIRESTORE = Google::Cloud::Firestore.new(
-    project_id: ENV.fetch("GOOGLE_CLOUD_PROJECT", "chaincross-local")
+    project_id:  ENV.fetch("GOOGLE_CLOUD_PROJECT", "chaincross-local"),
+    credentials: EmulatorAuth::NullCredentials.new
   )
 end
 

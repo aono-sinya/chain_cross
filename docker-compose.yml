@@ -6,9 +6,7 @@ services:
     image: hyperledger/besu:26.5.0
     container_name: chaincross-besu
     command:
-      - --network=dev
-      - --miner-enabled
-      - --miner-coinbase=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73
+      - --profile=dev
       - --rpc-http-enabled
       - --rpc-http-host=0.0.0.0
       - --rpc-http-port=8545
@@ -24,10 +22,12 @@ services:
       - "8546:8546"
     networks: [chaincross]
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- --post-data='{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_blockNumber\",\"params\":[]}' --header='Content-Type: application/json' http://localhost:8545 || exit 1"]
+      # Besu イメージには curl/wget が無いので bash の /dev/tcp で 8545 ポートを確認
+      test: ["CMD-SHELL", "bash -c '(echo > /dev/tcp/127.0.0.1/8545) >/dev/null 2>&1'"]
       interval: 5s
       timeout: 3s
-      retries: 20
+      retries: 30
+      start_period: 20s
 
   # =====================================================
   # Smart contracts (Foundry) - build + deploy
@@ -46,16 +46,9 @@ services:
       besu:
         condition: service_healthy
     # 起動後は常駐させて `docker compose exec contracts ./deploy.sh` で再デプロイ可能
+    entrypoint: ["bash", "-lc"]
     command:
-      - "bash"
-      - "-lc"
-      - |
-        if [ ! -d lib/forge-std ]; then
-          [ -d .git ] || (git init -q . && git config user.email ci@local && git config user.name ci);
-          forge install foundry-rs/forge-std --no-commit;
-        fi;
-        forge build;
-        tail -f /dev/null
+      - 'if [ ! -d lib/forge-std ]; then [ -d .git ] || (git init -q . && git config user.email ci@local && git config user.name ci); forge install foundry-rs/forge-std; fi; forge build && tail -f /dev/null'
     networks: [chaincross]
 
   # =====================================================

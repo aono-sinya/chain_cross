@@ -10,7 +10,7 @@ if [ ! -d lib/forge-std ]; then
     git config user.email ci@local
     git config user.name ci
   fi
-  forge install foundry-rs/forge-std --no-commit
+  forge install foundry-rs/forge-std
 fi
 
 echo "==> forge test"

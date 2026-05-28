@@ -8,7 +8,8 @@ class ChainClient
   def initialize
     @client = Eth::Client.create(ENV.fetch("BESU_RPC_URL", "http://besu:8545"))
     @key    = Eth::Key.new(priv: ENV.fetch("DEPLOYER_PRIVATE_KEY"))
-    @client.gas_limit = GAS_LIMIT
+    # eth gem 0.5.x では setter 形式の gas_limit= が廃止されている。
+    # 必要なら Eth::Tx.estimate_intrinsic_gas や呼び出し側で gas_limit: を指定する。
     @manager_address = CHAIN_CONFIG["collabManager"]
     @manager = Eth::Contract.from_abi(
       name: "CollabManager", address: @manager_address, abi: MANAGER_ABI

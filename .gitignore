@@ -10,6 +10,8 @@ contracts/cache/
 contracts/broadcast/
 contracts/lib/
 contracts/.git/
+contracts/.gitmodules
+contracts/foundry.lock
 game-mock/node_modules/
 .idea/
 

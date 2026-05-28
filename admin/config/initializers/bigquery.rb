@@ -6,8 +6,9 @@ else
   require "google/cloud/bigquery"
   ENV["BIGQUERY_EMULATOR_HOST"] ||= "bigquery:9050"
   BIGQUERY = Google::Cloud::Bigquery.new(
-    project_id: ENV.fetch("GOOGLE_CLOUD_PROJECT", "chaincross-local"),
-    endpoint:   "http://#{ENV['BIGQUERY_EMULATOR_HOST']}"
+    project_id:  ENV.fetch("GOOGLE_CLOUD_PROJECT", "chaincross-local"),
+    endpoint:    "http://#{ENV['BIGQUERY_EMULATOR_HOST']}",
+    credentials: EmulatorAuth::NullCredentials.new
   )
 
   Rails.application.config.after_initialize do

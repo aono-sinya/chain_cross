@@ -1,0 +1,20 @@
+# テキストファイルは LF で commit
+* text=auto eol=lf
+
+# シェルスクリプト・実行ファイルは必ず LF (Linux コンテナで実行されるため)
+*.sh        text eol=lf
+*.rb        text eol=lf
+*.erb       text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+Gemfile     text eol=lf
+Gemfile.lock text eol=lf
+Dockerfile  text eol=lf
+admin/bin/* text eol=lf
+
+# バイナリ
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+
